@@ -11,7 +11,6 @@ export default class AcceptRide {
         if (hasActiveRide) throw new Error("Driver already have an active ride");
         const ride = await this.rideRepository.getRideById(input.rideId);
         ride.accept(input.driverId);
-        console.log("Ride accepted with ID:", ride.getRideId(), "by driver:", input.driverId);
         await this.rideRepository.updateRide(ride);
     }
 }
