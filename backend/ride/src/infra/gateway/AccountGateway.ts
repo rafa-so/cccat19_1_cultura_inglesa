@@ -1,5 +1,4 @@
-import axios from "axios";
-import HttpClient from "../../domain/http/HttpClient";
+import HttpClient from "../http/HttpClient";
 
 export default interface AccountGateway {
     signup(input: SignupInput): Promise<any>;
@@ -11,13 +10,11 @@ export class AccountGatewayHttp implements AccountGateway {
     constructor(readonly httpClient: HttpClient) {}
 
     async signup(input: SignupInput): Promise<any> {
-        const response = await this.httpClient.post("http://localhost:3000/signup", input);
-        return response.data;
+        return await this.httpClient.post("http://localhost:3000/signup", input);
     }
 
     async getAccountById(accountId: string): Promise<GetAccountByIdOutput> {
-        const response = await this.httpClient.get(`http://localhost:3000/account/${accountId}`);
-        return response.data;
+        return await this.httpClient.get(`http://localhost:3000/account/${accountId}`);
     }
 }
 

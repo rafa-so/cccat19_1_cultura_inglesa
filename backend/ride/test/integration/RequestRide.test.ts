@@ -1,12 +1,12 @@
 import { beforeEach, test, expect, afterEach } from "@jest/globals";
-import { MailerGatewayMemory } from "../../src/infra/gateway/MailerGateway";
 import RideRepositoryDatabase from "../../src/infra/repository/RideRepository";
 import RequestRide from "../../src/application/usecase/RequestRide";
 import { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
 import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
-import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
+
 import GetRide from "../../src/application/usecase/GetRide";
-import { AxiosAdapter } from "../../src/domain/http/HttpClient";
+import { AxiosAdapter, FetchAdapter } from "../../src/infra/http/HttpClient";
+import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
 
 let connection: PgPromiseAdapter;
 let requestRide: RequestRide;
@@ -14,7 +14,8 @@ let getRide: GetRide;
 let accountGateway: AccountGateway;
 
 beforeEach(() => {
-    const httpClient = new AxiosAdapter();
+    // const httpClient = new AxiosAdapter();
+    const httpClient = new FetchAdapter();
     accountGateway = new AccountGatewayHttp(httpClient);
     connection = new PgPromiseAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
