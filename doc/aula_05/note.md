@@ -154,5 +154,7 @@ O estado interno, nvariância, deve ser preservado e não pode ser alterado de f
 
 > A proposta da Barbara Liskov foi justamente <u> garantir que as subclasses possam ser intercambiadas sem causar problemas durante a execução do programa</u>.
 
+## Open/Closed Principle (Princípio Aberto/Fechado)
 
+Os `componentes da arquitetura` devem estar <u> abertos para extensão e fechados para modificação</u>.
 
