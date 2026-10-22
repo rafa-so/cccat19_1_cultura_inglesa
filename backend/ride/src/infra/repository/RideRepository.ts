@@ -33,12 +33,12 @@ export default class RideRepositoryDatabase implements RideRepository {
 
     async saveRide(ride: Ride) {
         await this.connection.query("insert into ccca.ride (ride_id, passenger_id, driver_id, from_lat, from_long, to_lat, to_long, fare, distance, status, date) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", 
-            [ride.getRideId(), ride.getPassengerId(), ride.getDriverId(), ride.getFrom().getLat(), ride.getFrom().getLong(), ride.getTo().getLat(), ride.getTo().getLong(), ride.fare, ride.distance, ride.getStatus(), ride.date]
+            [ride.getRideId(), ride.getPassengerId(), ride.getDriverId(), ride.getFrom().getLat(), ride.getFrom().getLong(), ride.getTo().getLat(), ride.getTo().getLong(), ride.getFare(), ride.getDistance(), ride.getStatus(), ride.date]
         );
     }
 
     async updateRide(ride: Ride) {
-        await this.connection.query("UPDATE ccca.ride SET status = $1, driver_id = $2 WHERE ride_id = $3", [ride.getStatus(), ride.getDriverId(), ride.getRideId()]);
+        await this.connection.query("UPDATE ccca.ride SET status = $1, driver_id = $2, distance= $3, fare = $4 WHERE ride_id = $5", [ride.getStatus(), ride.getDriverId(), ride.getDistance(), ride.getFare(), ride.getRideId()]);
         await this.connection.query("DELETE FROM ccca.position where ride_id = $1", [ride.getRideId()])
     }
 

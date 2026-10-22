@@ -14,7 +14,14 @@ export default class GetRide {
     async execute(rideId: any): Promise<Output> {
         const ride = await this.rideRepository.getRideById(rideId);
         const passengerAccount = await this.accountGateway.getAccountById(ride.getPassengerId());
-        const positions = await this.positionRepository.listByRideId(rideId);
+
+        let distance;
+        if (ride.getStatus() === 'completed') {
+            distance = ride.getDistance();
+        } else {
+            const positions = await this.positionRepository.listByRideId(rideId);
+            distance = DistanceCalculator.calculateDistanceBetweenPositions(positions);
+        }
 
         return {
             rideId: ride.getRideId(),
@@ -24,8 +31,8 @@ export default class GetRide {
             fromLong: ride.getFrom().getLong(),
             toLat: ride.getTo().getLat(),
             toLong: ride.getTo().getLong(),
-            fare: ride.fare,
-            distance: DistanceCalculator.calculateDistanceBetweenPositions(positions),
+            fare: ride.getFare(),
+            distance,
             status: ride.getStatus(),
             date: ride.date,
             passengerName: passengerAccount?.name ?? '' 

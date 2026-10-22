@@ -9,7 +9,7 @@ import StartRide from "../../src/application/usecase/StartRide";
 import UpdatePosition from "../../src/application/usecase/UpdatePosition";
 import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
 import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
-import { AxiosAdapter } from "../../src/domain/http/HttpClient";
+import { AxiosAdapter } from "../../src/infra/http/HttpClient";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
