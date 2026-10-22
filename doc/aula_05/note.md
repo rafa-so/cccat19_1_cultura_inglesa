@@ -131,4 +131,28 @@ Quais são as ventagens e desvantagesn em ter uma arquitetura de `microservices`
 
  Leva `tempo` até entender qual é a <u>melhor forma de dividir os bounded contexts</u>.
 
- 
+ ## Liskov Substitution
+
+ `Se S é subclasse de T` então objetos do tipo T pode ser substituídos por objetivos do tipo S <u> sem quebrar o funcionamento do programa</u>.
+
+ Apenas definir uma subclasse `não implica manter a coerência e preservar a invariância`.
+
+ > Invariância é o princípio de que as propriedades e comportamentos de uma classe devem permanecer consistentes e válidos mesmo quando a classe é estendida por subclasses. é o estado interno da classe.
+
+ Maneiras de quebrar este pincípio que muitas vezes passam despercebidas incluem:
+ - Alterar o comportamento esperado de métodos herdados
+ - Modificar o estado interno de forma inconsistente
+ - Violar as pré-condições ou pós-condições definidas na classe base
+
+ `pré condições` são as condições que devem ser verdadeiras antes da execução de um método, enquanto `pós condições` são as condições que devem ser verdadeiras após a execução do método. Quebrar essas condições pode levar a comportamentos inesperados e violar o princípio de substituição de Liskov.
+
+As pré-condições não podem ser fortalecidas, ou mais restritiva com relação a super classe.
+As pós-condições não podem ser enfraquecidas, ou menos restritiva com relação a super classe.
+O estado interno, nvariância, deve ser preservado e não pode ser alterado de forma inconsistente em subclasses.
+
+> O princípio é sobre cumprir as espectativas definidas pela superclasse, garantindo que as subclasses possam ser usadas de forma intercambiável sem introduzir comportamentos inesperados.
+
+> A proposta da Barbara Liskov foi justamente <u> garantir que as subclasses possam ser intercambiadas sem causar problemas durante a execução do programa</u>.
+
+
+

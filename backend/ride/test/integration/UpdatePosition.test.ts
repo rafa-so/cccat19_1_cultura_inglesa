@@ -9,6 +9,7 @@ import StartRide from "../../src/application/usecase/StartRide";
 import UpdatePosition from "../../src/application/usecase/UpdatePosition";
 import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
 import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
+import { AxiosAdapter } from "../../src/domain/http/HttpClient";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
@@ -21,10 +22,11 @@ let positionRepository: PositionRepositoryDatabase;
 
 beforeEach(() => {
     connection = new PgPromiseAdapter();
+    const httpClient = new AxiosAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
     positionRepository = new PositionRepositoryDatabase(connection);
     const mailerGareway = new MailerGatewayMemory();
-    accountGateway = new AccountGatewayHttp();
+    accountGateway = new AccountGatewayHttp(httpClient);
     requestRide = new RequestRide(accountGateway, rideRepository);
     getRide = new GetRide(accountGateway, rideRepository, positionRepository);
     acceptRide = new AcceptRide(accountGateway, rideRepository)

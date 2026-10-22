@@ -12,7 +12,6 @@ export default class RequestRide {
         if (hasActiveRide) throw new Error("Passenger already have an active ride");
         const ride = Ride.create(input.passengerId, input.fromLat, input.fromLong, input.toLat, input.toLong);
         await this.rideRepository.saveRide(ride);
-        console.log("Ride created with ID:", ride.getRideId());
         return { rideId: ride.getRideId() }
     }
 }

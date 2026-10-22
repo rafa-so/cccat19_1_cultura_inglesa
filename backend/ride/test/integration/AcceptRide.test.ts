@@ -7,6 +7,7 @@ import GetRide from "../../src/application/usecase/GetRide";
 import { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
 import AcceptRide from "../../src/application/usecase/AcceptRide";
 import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
+import { AxiosAdapter } from "../../src/domain/http/HttpClient";
 
 let connection: PgPromiseAdapter;
 let requestRide: RequestRide;
@@ -16,11 +17,11 @@ let accountGateway: AccountGateway;
 
 beforeEach(() => {
     connection = new PgPromiseAdapter();
+    const httpClient = new AxiosAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
     const positionRepository = new PositionRepositoryDatabase(connection);
-    // const accountDAO = new AccountDAOMemory();
     const mailerGareway = new MailerGatewayMemory();
-    accountGateway = new AccountGatewayHttp();
+    accountGateway = new AccountGatewayHttp(httpClient);
     requestRide = new RequestRide(accountGateway, rideRepository);
     getRide = new GetRide(accountGateway, rideRepository, positionRepository);
     acceptRide = new AcceptRide(accountGateway, rideRepository)
