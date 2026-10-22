@@ -1,6 +1,5 @@
 import { beforeEach, test, expect, afterEach } from "@jest/globals";
-import AccountRepositoryDatabase from "../../src/infra/repository/AccountRepository";
-import Signup from "../../src/application/usecase/Signup";
+import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
 import { MailerGatewayMemory } from "../../src/infra/gateway/MailerGateway";
 import RideRepositoryDatabase from "../../src/infra/repository/RideRepository";
 import RequestRide from "../../src/application/usecase/RequestRide";
@@ -10,22 +9,21 @@ import AcceptRide from "../../src/application/usecase/AcceptRide";
 import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionRepository";
 
 let connection: PgPromiseAdapter;
-let signup: Signup;
 let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
+let accountGateway: AccountGateway;
 
 beforeEach(() => {
     connection = new PgPromiseAdapter();
-    const accountRepository = new AccountRepositoryDatabase(connection);
     const rideRepository = new RideRepositoryDatabase(connection);
     const positionRepository = new PositionRepositoryDatabase(connection);
     // const accountDAO = new AccountDAOMemory();
     const mailerGareway = new MailerGatewayMemory();
-    signup = new Signup(accountRepository, mailerGareway);
-    requestRide = new RequestRide(accountRepository, rideRepository);
-    getRide = new GetRide(accountRepository, rideRepository, positionRepository);
-    acceptRide = new AcceptRide(accountRepository, rideRepository)
+    accountGateway = new AccountGatewayHttp();
+    requestRide = new RequestRide(accountGateway, rideRepository);
+    getRide = new GetRide(accountGateway, rideRepository, positionRepository);
+    acceptRide = new AcceptRide(accountGateway, rideRepository)
 })
 
 test("Deve aceitar uma corrida", async function() {
@@ -37,7 +35,7 @@ test("Deve aceitar uma corrida", async function() {
         isPassenger: true,
     }
 
-    const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+    const outputSignupPassenger = await accountGateway.signup(inputSignupPassenger);
 
     const inputSignupDriver = {
         name: "John Doe",
@@ -49,7 +47,7 @@ test("Deve aceitar uma corrida", async function() {
         isDriver: true,
     }
 
-    const outputSignupDriver = await signup.execute(inputSignupDriver);
+    const outputSignupDriver = await accountGateway.signup(inputSignupDriver);
 
     const inputRequestRide = {
         passengerId: outputSignupPassenger.accountId,

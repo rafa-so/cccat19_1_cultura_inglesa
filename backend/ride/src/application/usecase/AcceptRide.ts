@@ -1,11 +1,11 @@
-import { AccountRepository } from "../../infra/repository/AccountRepository";
+import AccountGateway from "../../infra/gateway/AccountGateway";
 import { RideRepository } from "../../infra/repository/RideRepository";
  
 export default class AcceptRide {
-    constructor(readonly accountRepository: AccountRepository, readonly rideRepository: RideRepository) {}
+    constructor(readonly accountGateway: AccountGateway, readonly rideRepository: RideRepository) {}
 
     async execute(input: Input) {
-        const account = await this.accountRepository.getAccountById(input.driverId);
+        const account = await this.accountGateway.getAccountById(input.driverId);
         if (!account?.isDriver) throw new Error("Account must be from a driver");
         const hasActiveRide = await this.rideRepository.hasActiveRideByDriverId(input.driverId);
         if (hasActiveRide) throw new Error("Driver already have an active ride");
