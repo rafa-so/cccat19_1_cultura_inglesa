@@ -3,6 +3,7 @@ import Coord from "../vo/Coord";
 import UUID from "../vo/UUID";
 import Position from "./Position";
 import DistanceCalculator from "../service/DistanceCalculator";
+import { FareCalculatorFactory } from "../service/FareCalculator";
 
 export default class Ride {
     private rideId: UUID;
@@ -55,8 +56,14 @@ export default class Ride {
     finish(positions: Position[]) {
         if (this.status !== 'in_progress') throw new Error("Invalid status");
         this.status = 'completed';
-        this.distance = DistanceCalculator.calculateDistanceBetweenPositions(positions);
-        this.fare = this.distance * 2.1;
+
+        for (const [index, position] of positions.entries()) {
+            const nextPosition = positions[index + 1];
+            if (!nextPosition) break;
+            const distance = DistanceCalculator.calculateDistanceBetweenPositions([position, nextPosition]);
+            this.fare = FareCalculatorFactory.create(position.date).calculate(distance);
+            this.distance = distance;
+        }
     }
 
     getDistance() {
