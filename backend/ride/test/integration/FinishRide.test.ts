@@ -12,6 +12,8 @@ import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/Acco
 import { AxiosAdapter } from "../../src/infra/http/HttpClient";
 import FinishRide from "../../src/application/usecase/FinishRide";
 import { TransactionRepositoryDatabase } from "../../src/infra/repository/TransactionRepository";
+import Registry from "../../src/infra/di/Registry";
+import ProcessPayment from "../../src/application/usecase/ProcessPayment";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
@@ -36,6 +38,9 @@ beforeEach(() => {
     acceptRide = new AcceptRide(accountGateway, rideRepository)
     startRide = new StartRide(rideRepository);
     updatePosition = new UpdatePosition(rideRepository, positionRepository);
+    const processPayment = new ProcessPayment(transactionRepository);
+    const registry = Registry.getInstance();
+    registry.provide("processPayment", processPayment);
     finishRide = new FinishRide(rideRepository, positionRepository);
 })
 
@@ -231,7 +236,7 @@ test("Deve finalizar uma corrida deve custar um real", async function() {
     expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
-test("Deve finalizar uma corrida em horário noturno", async function() {
+test.only("Deve finalizar uma corrida em horário noturno", async function() {
     const inputSignupPassenger = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
