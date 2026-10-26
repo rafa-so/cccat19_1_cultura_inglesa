@@ -1,6 +1,9 @@
 import { RideRepository } from "../../infra/repository/RideRepository";
 import Position from "../../domain/entity/Position";
 import { PositionRepositoryDatabase } from "../../infra/repository/PositionRepository";
+import ProcessPayment from "./ProcessPayment";
+import { TransactionRepositoryDatabase } from "../../infra/repository/TransactionRepository";
+import { PgPromiseAdapter } from "../../infra/database/DatabaseConnection";
  
 export default class FinishRide {
     constructor(readonly rideRepository: RideRepository, readonly positionRepository: PositionRepositoryDatabase) {}
@@ -11,7 +14,8 @@ export default class FinishRide {
         ride.finish(positions);
         await this.rideRepository.updateRide(ride);
 
-        
+        const processPayment = new ProcessPayment(new TransactionRepositoryDatabase(new PgPromiseAdapter()));
+        await processPayment.execute({ rideId: ride.getRideId(), amount: ride.getFare() });
     }
 }
 

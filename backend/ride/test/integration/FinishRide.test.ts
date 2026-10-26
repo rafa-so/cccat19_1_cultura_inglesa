@@ -11,6 +11,7 @@ import { PositionRepositoryDatabase } from "../../src/infra/repository/PositionR
 import AccountGateway, { AccountGatewayHttp } from "../../src/infra/gateway/AccountGateway";
 import { AxiosAdapter } from "../../src/infra/http/HttpClient";
 import FinishRide from "../../src/application/usecase/FinishRide";
+import { TransactionRepositoryDatabase } from "../../src/infra/repository/TransactionRepository";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
@@ -27,10 +28,11 @@ beforeEach(() => {
     const httpClient = new AxiosAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
     positionRepository = new PositionRepositoryDatabase(connection);
+    const transactionRepository = new TransactionRepositoryDatabase(connection);
     const mailerGareway = new MailerGatewayMemory();
     accountGateway = new AccountGatewayHttp(httpClient);
     requestRide = new RequestRide(accountGateway, rideRepository);
-    getRide = new GetRide(accountGateway, rideRepository, positionRepository);
+    getRide = new GetRide(accountGateway, rideRepository, positionRepository, transactionRepository);
     acceptRide = new AcceptRide(accountGateway, rideRepository)
     startRide = new StartRide(rideRepository);
     updatePosition = new UpdatePosition(rideRepository, positionRepository);
@@ -291,6 +293,8 @@ test("Deve finalizar uma corrida em horário noturno", async function() {
     expect(outputGetRide.fare).toBe(39);
 
     expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
+
+    console.log(outputGetRide);
 });
 
 afterEach(async () => {

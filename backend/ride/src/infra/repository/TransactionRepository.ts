@@ -4,6 +4,7 @@ import DatabaseConnection from "../database/DatabaseConnection";
 export default interface TransactionRepository {
     saveTransaction(transaction: Transaction): Promise<void>;
     getTransactionById(transactionId: string): Promise<Transaction>;
+    getTransactionByRideId(rideId: string): Promise<Transaction>;
 }
 
 export class TransactionRepositoryDatabase implements TransactionRepository {
@@ -17,6 +18,11 @@ export class TransactionRepositoryDatabase implements TransactionRepository {
 
     async getTransactionById(transactionId: string): Promise<Transaction> {
         const [transactionData] = await this.connection.query("SELECT * FROM ccca.transaction where transaction_id = $1", [transactionId]);
+        return new Transaction(transactionData.transaction_id, transactionData.ride_id, parseFloat(transactionData.amount), transactionData.status, transactionData.date);
+    }
+
+    async getTransactionByRideId(rideId: string): Promise<Transaction> {
+        const [transactionData] = await this.connection.query("SELECT * FROM ccca.transaction where ride_Id = $1", [rideId]);
         return new Transaction(transactionData.transaction_id, transactionData.ride_id, parseFloat(transactionData.amount), transactionData.status, transactionData.date);
     }
 }
