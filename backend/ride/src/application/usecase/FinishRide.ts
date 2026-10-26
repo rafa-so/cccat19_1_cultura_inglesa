@@ -10,6 +10,8 @@ export default class FinishRide {
         const positions = await this.positionRepository.listByRideId(input.rideId);
         ride.finish(positions);
         await this.rideRepository.updateRide(ride);
+
+        
     }
 }
 
