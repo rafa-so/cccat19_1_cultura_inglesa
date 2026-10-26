@@ -34,3 +34,11 @@ create table ccca.position (
 	long numeric,
 	date timestamp
 )
+
+create transaction ccca.transaction (
+	transaction_id uuid,
+	ride_id uuid,
+	amount numeric,
+	status text,
+	date timestamp
+)
