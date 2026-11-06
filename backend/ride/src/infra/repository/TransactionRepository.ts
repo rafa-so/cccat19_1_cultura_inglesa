@@ -1,5 +1,6 @@
 import { Transaction } from "../../domain/entity/Transaction";
 import DatabaseConnection from "../database/DatabaseConnection";
+import { inject } from "../di/Registry";
 
 export default interface TransactionRepository {
     saveTransaction(transaction: Transaction): Promise<void>;
@@ -8,8 +9,8 @@ export default interface TransactionRepository {
 }
 
 export class TransactionRepositoryDatabase implements TransactionRepository {
-
-    constructor(readonly connection: DatabaseConnection){}
+    @inject("connection")
+    connection!: DatabaseConnection;
 
     async saveTransaction(transaction: Transaction): Promise<void> {
         await this.connection.query("INSERT INTO ccca.transaction (transaction_id, ride_id, amount, status, date) values ($1, $2, $3, $4, $5)", 

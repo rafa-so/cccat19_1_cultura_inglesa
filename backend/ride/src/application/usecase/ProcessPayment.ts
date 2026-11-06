@@ -1,8 +1,12 @@
 import { Transaction } from "../../domain/entity/Transaction";
+import Registry, { inject } from "../../infra/di/Registry";
 import TransactionRepository from "../../infra/repository/TransactionRepository";
 
 export default class ProcessPayment {
-    constructor(readonly transactionRepository: TransactionRepository) {}
+    @inject("transactionRepository")
+    transactionRepository!: TransactionRepository;
+    
+    constructor() {}
 
     async execute (input: Input): Promise<Output> {
         console.log("process payment")

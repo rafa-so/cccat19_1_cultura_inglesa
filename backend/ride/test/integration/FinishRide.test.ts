@@ -27,10 +27,11 @@ let finishRide: FinishRide;
 
 beforeEach(() => {
     connection = new PgPromiseAdapter();
+    Registry.getInstance().provide("connection", connection);
     const httpClient = new AxiosAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
     positionRepository = new PositionRepositoryDatabase(connection);
-    const transactionRepository = new TransactionRepositoryDatabase(connection);
+    const transactionRepository = new TransactionRepositoryDatabase();
     const mailerGareway = new MailerGatewayMemory();
     accountGateway = new AccountGatewayHttp(httpClient);
     requestRide = new RequestRide(accountGateway, rideRepository);
@@ -38,9 +39,9 @@ beforeEach(() => {
     acceptRide = new AcceptRide(accountGateway, rideRepository)
     startRide = new StartRide(rideRepository);
     updatePosition = new UpdatePosition(rideRepository, positionRepository);
-    const processPayment = new ProcessPayment(transactionRepository);
     const registry = Registry.getInstance();
-    registry.provide("processPayment", processPayment);
+    registry.provide("transactionRepository", transactionRepository);
+    registry.provide("processPayment", new ProcessPayment());
     finishRide = new FinishRide(rideRepository, positionRepository);
 })
 
@@ -236,7 +237,7 @@ test("Deve finalizar uma corrida deve custar um real", async function() {
     expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
-test.only("Deve finalizar uma corrida em horário noturno", async function() {
+test("Deve finalizar uma corrida em horário noturno", async function() {
     const inputSignupPassenger = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
@@ -298,8 +299,6 @@ test.only("Deve finalizar uma corrida em horário noturno", async function() {
     expect(outputGetRide.fare).toBe(39);
 
     expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
-
-    console.log(outputGetRide);
 });
 
 afterEach(async () => {

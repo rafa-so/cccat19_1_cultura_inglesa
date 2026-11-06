@@ -3,9 +3,12 @@ import { PositionRepositoryDatabase } from "../../infra/repository/PositionRepos
 import ProcessPayment from "./ProcessPayment";
 import { TransactionRepositoryDatabase } from "../../infra/repository/TransactionRepository";
 import { PgPromiseAdapter } from "../../infra/database/DatabaseConnection";
-import Registry from "../../infra/di/Registry";
+import Registry, { inject } from "../../infra/di/Registry";
  
 export default class FinishRide {
+    @inject("processPayment")
+    processPayment!: ProcessPayment;
+
     constructor(
         readonly rideRepository: RideRepository, 
         readonly positionRepository: PositionRepositoryDatabase
@@ -16,9 +19,7 @@ export default class FinishRide {
         const positions = await this.positionRepository.listByRideId(input.rideId);
         ride.finish(positions);
         await this.rideRepository.updateRide(ride);
-        
-        const processPayment = Registry.getInstance().inject("processPayment");
-        await processPayment.execute({ rideId: ride.getRideId(), amount: ride.getFare() });
+        await this.processPayment.execute({ rideId: ride.getRideId(), amount: ride.getFare() });
     }
 }
 

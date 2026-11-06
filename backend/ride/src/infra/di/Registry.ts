@@ -1,5 +1,3 @@
-import { InvalidatedProjectKind } from "typescript";
-
 export default class Registry {
     dependencies: { [name: string]: any };
     private static instance: Registry;
@@ -21,5 +19,16 @@ export default class Registry {
             Registry.instance = new Registry();
         }
         return Registry.instance;
+    }
+}
+
+export function inject(name: string) {
+    return function(target: any, propertyKey: string) {
+        target[propertyKey] = new Proxy({}, {
+            get (target: any, propertyKey: string) {
+                const dependency = Registry.getInstance().inject(name);
+                return dependency[propertyKey];
+            }
+        });
     }
 }
