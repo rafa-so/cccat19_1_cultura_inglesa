@@ -1,7 +1,8 @@
 import { Transaction } from "../../src/domain/entity/Transaction";
 import UUID from "../../src/domain/vo/UUID";
 import { PgPromiseAdapter } from "../../src/infra/database/DatabaseConnection";
-import ORM, { TransactionModel } from "../../src/infra/orm/ORM";
+import ORM from "../../src/infra/orm/ORM";
+import { TransactionModel } from "../../src/infra/orm/TransactionModel";
 
 test("Deve inserir um registro no banco de dados", async function () {
     const connection = new PgPromiseAdapter();

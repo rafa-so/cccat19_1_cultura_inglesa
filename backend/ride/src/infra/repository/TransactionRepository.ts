@@ -1,6 +1,7 @@
 import { Transaction } from "../../domain/entity/Transaction";
 import { inject } from "../di/Registry";
-import ORM, { TransactionModel } from "../orm/ORM";
+import ORM from "../orm/ORM";
+import { TransactionModel } from "../orm/TransactionModel";
 
 export default interface TransactionRepository {
     saveTransaction(transaction: Transaction): Promise<void>;
