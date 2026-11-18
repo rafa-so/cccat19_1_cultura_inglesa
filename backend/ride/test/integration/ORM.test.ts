@@ -8,6 +8,8 @@ test("Deve inserir um registro no banco de dados", async function () {
     const orm = new ORM(connection);
     const transaction = Transaction.create(UUID.create().getValue(), 100);
     await orm.save(TransactionModel.FromAggregate(transaction));
-    // const savedTransaction = await orm.get(Transaction, "transaction_id", transaction.getTransactionId());
-    // expect(savedTransaction.amount).toBe(100);
+    const savedTransaction = await orm.get(TransactionModel, "transaction_id", transaction.getTransactionId());
+    console.log(savedTransaction.toAggregate());
+    expect(savedTransaction.amount).toBe(100);
+    await orm.connection.close();
 });

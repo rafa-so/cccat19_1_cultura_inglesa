@@ -9,8 +9,23 @@ export default class ORM {
     async save(model: Model) {
         const columns = model.columns.map((colmun: any) => colmun.column).join(', ');
         const params = model.columns.map((column: any, index) => `$${index + 1}`).join(", ");
+        const values = model.columns.map((column) => model[column.property]);
         const query = `INSERT INTO ${model.schema}.${model.table} (${columns}) VALUES (${params})`;
-        console.log(query);
+        await this.connection.query(query, values);
+    }
+
+    async get(model: any, field: string, value: any) {
+        const query = `select * from ${model.prototype.schema}.${model.prototype.table} where ${field} = $1`;
+        const [data] = await this.connection.query(query, [value]);
+        const obj = new model();
+        for(const column of model.prototype.columns) {
+            if (column.type === "number") {
+                obj[column.property] = parseFloat(data[column.column]);
+            } else {
+                obj[column.property] = data[column.column];
+            }
+        }
+        return obj;
 
     }
 }
@@ -18,7 +33,8 @@ export default class ORM {
 export class Model {
     schema!: string;
     table!: string;
-    columns!: [{ column: string, property: string, pk: boolean }];
+    columns!: [{ column: string, property: string, type: string, pk: boolean }];
+    [property: string]: any;
 }
 
 @model("ccca", "transaction")
@@ -27,7 +43,7 @@ export class TransactionModel extends Model{
     transactionId: string;
     @column("ride_id")
     rideId: string;
-    @column("amount")
+    @column("amount", "number")
     amount: number;
     @column("status")
     status: string;
@@ -46,6 +62,10 @@ export class TransactionModel extends Model{
     static FromAggregate(transaction: Transaction) {
         return new TransactionModel(transaction.getTransactionId(), transaction.getRideId(), transaction.amount, transaction.status, transaction.date);
     }
+
+    toAggregate() {
+        return new Transaction(this.transactionId, this.rideId, this.amount, this.status, this.date);
+    }
 }
 
 function model (schema: string, table: string) {
@@ -55,9 +75,9 @@ function model (schema: string, table: string) {
     }
 }
 
-function column(column: string) {
+function column(column: string, type: string = "string") {
     return function (target: any, propertyKey: string) {
         target.columns = target.columns || [];
-        target.columns.push({ column, property: propertyKey })
+        target.columns.push({ column, property: propertyKey, type })
     }
 }
