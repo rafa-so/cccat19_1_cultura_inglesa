@@ -1,6 +1,6 @@
 import { Transaction } from "../../domain/entity/Transaction";
-import DatabaseConnection from "../database/DatabaseConnection";
 import { inject } from "../di/Registry";
+import ORM, { TransactionModel } from "../orm/ORM";
 
 export default interface TransactionRepository {
     saveTransaction(transaction: Transaction): Promise<void>;
@@ -9,21 +9,20 @@ export default interface TransactionRepository {
 }
 
 export class TransactionRepositoryDatabase implements TransactionRepository {
-    @inject("connection")
-    connection!: DatabaseConnection;
+    @inject("orm")
+    orm!: ORM
 
     async saveTransaction(transaction: Transaction): Promise<void> {
-        await this.connection.query("INSERT INTO ccca.transaction (transaction_id, ride_id, amount, status, date) values ($1, $2, $3, $4, $5)", 
-            [transaction.getTransactionId(), transaction.getRideId(), transaction.amount, transaction.status, transaction.date]);
+        await this.orm.save(TransactionModel.FromAggregate(transaction));
     }
 
     async getTransactionById(transactionId: string): Promise<Transaction> {
-        const [transactionData] = await this.connection.query("SELECT * FROM ccca.transaction where transaction_id = $1", [transactionId]);
-        return new Transaction(transactionData.transaction_id, transactionData.ride_id, parseFloat(transactionData.amount), transactionData.status, transactionData.date);
+        const transaction = await this.orm.get(TransactionModel, "transaction_id", transactionId);
+        return transaction.toAggregate();
     }
 
     async getTransactionByRideId(rideId: string): Promise<Transaction> {
-        const [transactionData] = await this.connection.query("SELECT * FROM ccca.transaction where ride_Id = $1", [rideId]);
-        return new Transaction(transactionData.transaction_id, transactionData.ride_id, parseFloat(transactionData.amount), transactionData.status, transactionData.date);
+        const transaction = await this.orm.get(TransactionModel, "ride_id", rideId);
+        return transaction.toAggregate();
     }
 }

@@ -14,6 +14,7 @@ import FinishRide from "../../src/application/usecase/FinishRide";
 import { TransactionRepositoryDatabase } from "../../src/infra/repository/TransactionRepository";
 import Registry from "../../src/infra/di/Registry";
 import ProcessPayment from "../../src/application/usecase/ProcessPayment";
+import ORM from "../../src/infra/orm/ORM";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
@@ -28,6 +29,7 @@ let finishRide: FinishRide;
 beforeEach(() => {
     connection = new PgPromiseAdapter();
     Registry.getInstance().provide("connection", connection);
+    Registry.getInstance().provide("orm", new ORM(connection));
     const httpClient = new AxiosAdapter();
     const rideRepository = new RideRepositoryDatabase(connection);
     positionRepository = new PositionRepositoryDatabase(connection);
