@@ -15,6 +15,7 @@ import { TransactionRepositoryDatabase } from "../../src/infra/repository/Transa
 import Registry from "../../src/infra/di/Registry";
 import ProcessPayment from "../../src/application/usecase/ProcessPayment";
 import ORM from "../../src/infra/orm/ORM";
+import Mediator from "../../src/infra/mediator/Mediator";
 
 let connection: PgPromiseAdapter;
 let accountGateway: AccountGateway;
@@ -28,6 +29,8 @@ let finishRide: FinishRide;
 
 beforeEach(() => {
     connection = new PgPromiseAdapter();
+    const mediator = new Mediator();
+    Registry.getInstance().provide("mediator", mediator);
     Registry.getInstance().provide("connection", connection);
     Registry.getInstance().provide("orm", new ORM(connection));
     const httpClient = new AxiosAdapter();
@@ -43,8 +46,12 @@ beforeEach(() => {
     updatePosition = new UpdatePosition(rideRepository, positionRepository);
     const registry = Registry.getInstance();
     registry.provide("transactionRepository", transactionRepository);
+    registry.provide("rideRepository", rideRepository);
     registry.provide("processPayment", new ProcessPayment());
     finishRide = new FinishRide(rideRepository, positionRepository);
+    mediator.register("rideCompleted", async function (data: any) {
+        await Registry.getInstance().inject("processPayment").execute(data);
+    });
 })
 
 test("Deve finalizar uma corrida em horário comercial", async function() {

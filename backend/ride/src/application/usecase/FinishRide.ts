@@ -1,13 +1,11 @@
 import { RideRepository } from "../../infra/repository/RideRepository";
 import { PositionRepositoryDatabase } from "../../infra/repository/PositionRepository";
-import ProcessPayment from "./ProcessPayment";
-import { TransactionRepositoryDatabase } from "../../infra/repository/TransactionRepository";
-import { PgPromiseAdapter } from "../../infra/database/DatabaseConnection";
-import Registry, { inject } from "../../infra/di/Registry";
+import Mediator from "../../infra/mediator/Mediator";
+import { inject } from "../../infra/di/Registry";
  
 export default class FinishRide {
-    @inject("processPayment")
-    processPayment!: ProcessPayment;
+    @inject("mediator")
+    mediator!: Mediator;
 
     constructor(
         readonly rideRepository: RideRepository, 
@@ -19,7 +17,7 @@ export default class FinishRide {
         const positions = await this.positionRepository.listByRideId(input.rideId);
         ride.finish(positions);
         await this.rideRepository.updateRide(ride);
-        await this.processPayment.execute({ rideId: ride.getRideId(), amount: ride.getFare() });
+        await this.mediator.notifyAll("rideCompleted", { rideId: ride.getRideId() })
     }
 }
 
